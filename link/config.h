@@ -9,5 +9,7 @@ typedef	unsigned char	uint8;
 typedef char			int8;
 #define	FALSE			0
 #define TRUE			1
+
+extern void msleep(int32 usec);
 
 #endif
