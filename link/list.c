@@ -31,7 +31,7 @@ void *thread_list_run(void *arg)
 	
 	uint32 input_sel = 0;
 	uint32 input_num = 0;
-	struct stu_list *head_list;
+	struct stu_list *list_head;
 	struct stu_list_data list_data;
 
 	while(1)
@@ -45,38 +45,31 @@ void *thread_list_run(void *arg)
 			printf("Input number and name: ");
 			scanf("%d %s", &list_data.num, list_data.name);
 									
-			head_list = list_creat(head_list, &list_data);
+			list_head = list_creat(list_head, &list_data);
         }
         else if(input_sel == LINK_MODE_INSERT)
         {	
 			memset(&list_data, 0, SIZE_LIST_DATA);
+			
 			printf("Input number and name: ");
 			scanf("%d %s", &list_data.num, list_data.name);
-			CPRINTF(1,"====");
-			list_insert(head_list, &list_data, 0);
-			CPRINTF(1,"====");
+			
+			list_insert(list_head, &list_data, 0);
         }
         else if(input_sel == LINK_MODE_DELETE)
         {			
 			printf("Input delete position: ");
 			scanf("%d", &input_num);
-			if(list_delete(head_list, input_num) == FALSE)
-			{
-				CPRINTF(1, "Delete Data Fail ");
-			}
-			else
-			{
-				CPRINTF(1, "Delete Data Success ");
-			}
+			
+			list_head = list_delete(list_head, input_num));
         }
         else if(input_sel == LINK_MODE_RELEASE)
         {			
-			list_release(head_list);
+			list_release(list_head);
         }
         else if(input_sel == LINK_MODE_PRINT)
         {	
-			CPRINTF(2,"LINK_MODE_PRINT");
-			list_print(head_list);
+			list_print(list_head);
         }
 		else
 		{
@@ -137,18 +130,15 @@ uint32 list_insert(struct stu_list *list_head, struct stu_list_data *list_data, 
 {
 	(void)pos;
 	struct stu_list *list = list_head;
-	CPRINTF(1,"====");
 	
 	if(NULL == list_head)
 	{
-		CPRINTF(1,"====");
 		list_head = list_creat(list_head, list_data);
 		if(NULL == list_head)
 			return FALSE;
 	}
 	else
 	{
-		CPRINTF(1,"====");
 		list = (struct stu_list *)malloc(SIZE_LIST);
 		if(NULL == list)
 		{
@@ -156,57 +146,55 @@ uint32 list_insert(struct stu_list *list_head, struct stu_list_data *list_data, 
 			return FALSE;
 		}
 		
-		CPRINTF(1,"====");
 	    memcpy(&list->list_data, list_data, SIZE_LIST_DATA);
 
 		list->prew = list_head->prew;
 		list->next = list_head;
 		list_head->prew->next = list;
 		list_head->prew = list;
-		CPRINTF(1,"====");
 	}
-	CPRINTF(1,"====");
 	
 	return TRUE;
 }
 
 
 // 删除链表
-uint32  list_delete(struct stu_list *list_head, uint32 num)
+struct stu_list *list_delete(struct stu_list *list_head, uint32 num)
 {
-	struct stu_list *list = list_head;
+	struct stu_list *list;
+	if(list_head == NULL)
+	{
+		CPRINTF(1,"list is NULL");
+		return NULL;
+	}
+	
+	list = list_head;
 
-	CPRINTF(1,"num=%d", num);
 	if(list->next == list_head)
 	{
-		CPRINTF(1,"num=%d", num);
 		if(list->list_data.num == num)
 		{
 			free(list_head);
 			list_head = NULL;
-			return TRUE;
+			return list_head;
 		}
 	}
 	else
 	{
-		CPRINTF(1,"num=%d", num);
-		
 		do
 		{
-			CPRINTF(2,"==list:%d, %s===", list->list_data.num, list->list_data.name);
 			if(list->list_data.num == num)
 			{
+				list->prew->next = list->next;
+				list->next->prew = list->prew;
+
 				if(list == list_head)
 				{
 					list_head = list_head->next;
 				}
-				
-				list->prew->next = list->next;
-				list->next->prew = list->prew;
-				CPRINTF(1,"==list:%d, %s===", list->list_data.num, list->list_data.name);
 				free(list);
 				list = NULL;
-				return TRUE;
+				return list_head;
 			}
 			else
 			{
@@ -215,7 +203,8 @@ uint32  list_delete(struct stu_list *list_head, uint32 num)
 		}while(list != list_head);
 	}
 
-	return FALSE;
+	CPRINTF(1,"list num not found");
+	return list_head;
 }
 
 
@@ -234,7 +223,6 @@ void list_release(struct stu_list *list_head)
 	    CPRINTF(2,"list release :num:%d, name:%s", headlist->list_data.num, headlist->list_data.name);
 		list = headlist->next;
 		free(headlist);
-		headlist = NULL;
 		headlist = list;
 		
 		if(list_head == list)
@@ -248,18 +236,19 @@ void list_release(struct stu_list *list_head)
 // 链表数据打印
 void list_print(struct stu_list *list_head)
 {
-	struct stu_list *listhead = list_head;
+	struct stu_list *list = list_head;
 
-	if(listhead == NULL)
+	if(list == NULL)
 	{
 		CPRINTF(2,"list NULL");
 		return;
 	}
 	
-	CPRINTF(2, "list print :num:%d, name:%s", list_head->list_data.num, list_head->list_data.name);
-
-	if(listhead->next != list_head)
-		list_print(list_head->next, list_start);
+	do
+	{
+		CPRINTF(2, "list print :num:%d, name:%s", list->list_data.num, list->list_data.name);
+		list = list->next;
+	}while(list != list_head);
 
 }
 

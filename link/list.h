@@ -37,12 +37,12 @@ struct stu_list *list_creat(struct stu_list *list_head, struct stu_list_data *li
 uint32 list_insert(struct stu_list *list_head, struct stu_list_data *list_data, uint32 pos);
 
 // 删除链表
-uint32  list_delete(struct stu_list *list_head, uint32 num);
+struct stu_list *list_delete(struct stu_list *list_head, uint32 num);
 
 // 链表空间释放
 void list_release(struct stu_list *list_head);
 
 // 链表数据打印
-void list_print(struct stu_list *list_head, struct stu_list *list_start);
+void list_print(struct stu_list *list_head);
 
 #endif
